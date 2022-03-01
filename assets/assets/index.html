@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+  </head>
+  <body>
+    <h1>Twilio Serverless Video Calling</h1>
+    <form>
+      Name: <input type="text" id="username">
+      <button id="join_leave">Join call</button>
+    </form>
+    <p id="count"></p>
+    <div id="container" class="container">
+      <div id="local" class="participant">
+        <div></div>
+        <div>Me</div>
+      </div>
+      <!-- more participants will be added dynamically here -->
+    </div>
+
+    <script src="https://sdk.twilio.com/js/video/releases/2.20.1/twilio-video.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
