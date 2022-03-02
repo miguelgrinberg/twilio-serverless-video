@@ -79,7 +79,7 @@ const participantConnected = (participant) => {
 
   participant.tracks.forEach(publication => {
     if (publication.isSubscribed) {
-      trackSubscribed(tracks_div, publication.track);
+      trackSubscribed(tracksDiv, publication.track);
     }
   });
   participant.on('trackSubscribed', track => trackSubscribed(tracksDiv, track));
