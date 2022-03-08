@@ -2,13 +2,59 @@ const usernameInput = document.getElementById('username');
 const button = document.getElementById('join_leave');
 const container = document.getElementById('container');
 const count = document.getElementById('count');
+const local = document.getElementById('local');
+const bgAudio = document.getElementById('bgaudio');
 let connected = false;
 let room;
+let bgAudioTrack;
 
 const addLocalVideo = async () => {
   const track = await Twilio.Video.createLocalVideoTrack();
-  const video = document.getElementById('local').firstElementChild;
+  const video = local.firstElementChild;
   video.appendChild(track.attach());
+};
+
+window.ondragover = (ev) => {
+  ev.preventDefault();
+};
+
+window.ondrop = (ev) => {
+  ev.preventDefault();
+};
+
+local.ondragover = () => {
+  local.classList.add('drop');
+};
+
+local.ondragleave = () => {
+  local.classList.remove('drop');
+};
+
+local.ondrop = async (ev) => {
+  local.classList.remove('drop');
+  if (bgAudioTrack) {
+    await bgAudio.onended();
+  }
+  bgAudio.src = URL.createObjectURL(ev.dataTransfer.files[0]);
+};
+
+bgAudio.oncanplay = async () => {
+  if (connected) {
+    const stream = bgAudio.captureStream();
+    if (stream.getAudioTracks().length > 0) {
+      const audioStream = stream.getAudioTracks()[0];
+      bgAudioTrack = new Twilio.Video.LocalAudioTrack(stream.getAudioTracks()[0], {name: "bgaudio"});
+      await room.localParticipant.publishTrack(bgAudioTrack);
+    }
+  }
+  bgAudio.play();
+};
+
+bgAudio.onended = async () => {
+  if (bgAudioTrack) {
+    await room.localParticipant.unpublishTrack(bgAudioTrack);
+    bgAudioTrack = null;
+  }
 };
 
 const connectButtonHandler = async (event) => {

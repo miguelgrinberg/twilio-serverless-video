@@ -21,3 +21,9 @@
     width: 100%;
     height: 100%;
 }
+#local.drop div:first-child {
+  border: 1px solid red;
+}
+#local.drop div:first-child video {
+  opacity: 0.5;
+}
