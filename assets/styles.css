@@ -11,7 +11,7 @@
 .participant div {
     text-align: center;
 }
-.participant div:first-child {
+.participant div:first-child video {
     width: 240px;
     height: 180px;
     background-color: #ccc;
@@ -20,4 +20,13 @@
 .participant video {
     width: 100%;
     height: 100%;
+}
+#playVideo {
+  width: 240px;
+  height: 180px;
+  border: 1px solid #888;
+}
+#playVideo.drop {
+  border: 1px solid red;
+  opacity: 0.5;
 }

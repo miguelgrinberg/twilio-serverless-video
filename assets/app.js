@@ -2,13 +2,70 @@ const usernameInput = document.getElementById('username');
 const button = document.getElementById('join_leave');
 const container = document.getElementById('container');
 const count = document.getElementById('count');
+const local = document.getElementById('local');
+const playVideo = document.getElementById('playVideo');
 let connected = false;
 let room;
+let extraVideoTrack;
+let extraAudioTrack;
 
 const addLocalVideo = async () => {
   const track = await Twilio.Video.createLocalVideoTrack();
-  const video = document.getElementById('local').firstElementChild;
+  const video = local.firstElementChild;
   video.appendChild(track.attach());
+};
+
+window.ondragover = (ev) => {
+  ev.preventDefault();
+};
+
+window.ondrop = (ev) => {
+  ev.preventDefault();
+};
+
+playVideo.ondragover = () => {
+  playVideo.classList.add('drop');
+};
+
+playVideo.ondragleave = () => {
+  playVideo.classList.remove('drop');
+};
+
+playVideo.ondrop = async (ev) => {
+  playVideo.classList.remove('drop');
+  if (extraVideoTrack || extraAudioTrack) {
+    await playVideo.onended();
+  }
+  playVideo.src = URL.createObjectURL(ev.dataTransfer.files[0]);
+};
+
+playVideo.oncanplaythrough = async () => {
+  if (connected && !extraVideoTrack && !extraAudioTrack) {
+    const stream = playVideo.captureStream();
+    if (stream.getVideoTracks().length > 0) {
+      const videoStream = stream.getVideoTracks()[0];
+      extraVideoTrack = new Twilio.Video.LocalVideoTrack(videoStream);
+      await room.localParticipant.publishTrack(extraVideoTrack);
+    }
+    if (stream.getAudioTracks().length > 0) {
+      const audioStream = stream.getAudioTracks()[0];
+      extraAudioTrack = new Twilio.Video.LocalAudioTrack(audioStream);
+      await room.localParticipant.publishTrack(extraAudioTrack);
+    }
+  }
+  playVideo.play();
+};
+
+playVideo.onended = async () => {
+  if (extraVideoTrack) {
+    await room.localParticipant.unpublishTrack(extraVideoTrack);
+    extraVideoTrack = null;
+  }
+  if (extraAudioTrack) {
+    await room.localParticipant.unpublishTrack(extraAudioTrack);
+    extraAudioTrack = null;
+  }
+  playVideo.removeAttribute('src');
 };
 
 const connectButtonHandler = async (event) => {
